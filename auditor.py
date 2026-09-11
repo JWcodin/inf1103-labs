@@ -25,3 +25,8 @@ while stock_quantity != "quit":
             break
 
     stock_quantity = input("Enter new stock quantity (or 'quit' to exit): ")
+
+# 8. Reporting: When the user types quit, print the Total Units Processed and the Number of Failed/Rejected Entries.
+print("\n--- Inventory Report ---")
+print("Total Units Processed: " + str(inventory))
+print("Number of Failed/Rejected Entries: " + str(failed_entries))
