@@ -19,4 +19,9 @@ while stock_quantity != "quit":
         inventory = inventory + stock_quantity
         print ("Inventory updated. Current inventory: " + str(inventory))
 
+        # 7. If the total inventory exceeds 500 units, print an alert and break the loop immediately. 
+        if inventory > 500:
+            print("Alert: Inventory is full.")
+            break
+
     stock_quantity = input("Enter new stock quantity (or 'quit' to exit): ")
