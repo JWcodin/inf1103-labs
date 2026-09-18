@@ -21,6 +21,12 @@ def calculate_tax(amount):
     tax = amount * 0.1
     return tax
 
+# 4. generate_report(total_units, failed_attempts): A dedicated function to print the final summary. 
+def generate_report(total_units, failed_attempts):
+    print("\n--- Inventory Report ---")
+    print("Total Units Processed: " + str(total_units))
+    print("Number of Failed/Rejected Entries: " + str(failed_attempts))
+
 # Initialize inventory to zero
 inventory = 0
 failed_entries = 0
@@ -45,7 +51,6 @@ while True:
    tax = calculate_tax(stock_quantity)
    print("Tax for this delivery: " + str(tax))
 
-# 8. Reporting: When the user types quit, print the Total Units Processed and the Number of Failed/Rejected Entries.
-print("\n--- Inventory Report ---")
-print("Total Units Processed: " + str(inventory))
-print("Number of Failed/Rejected Entries: " + str(failed_entries))
+
+# print the Total Units Processed and the Number of Failed/Rejected Entries
+generate_report(inventory, failed_entries)
