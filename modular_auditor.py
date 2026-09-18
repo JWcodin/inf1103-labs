@@ -11,6 +11,11 @@ def get_valid_input():
     else:
         return int(stock_quantity)
 
+# 2. process_delivery(current_total, new_value): Calculates the new total and returns it. 
+def process_delivery(current_total, new_value):
+    new_total = current_total + new_value
+    return new_total
+
 # Initialize inventory to zero
 inventory = 0
 failed_entries = 0
@@ -27,6 +32,9 @@ while True:
         failed_entries = failed_entries + 1
         continue
 
+   # Process the valid delivery
+   inventory = process_delivery(inventory, stock_quantity)
+   print ("Inventory updated. Current inventory: " + str(inventory))
 
 # 8. Reporting: When the user types quit, print the Total Units Processed and the Number of Failed/Rejected Entries.
 print("\n--- Inventory Report ---")
