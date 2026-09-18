@@ -30,6 +30,7 @@ def generate_report(total_units, failed_attempts):
 # Initialize inventory to zero
 inventory = 0
 failed_entries = 0
+deliveries_processed = 0
 
 #Run in a continuous loop asking user to enter a stock quantity, until the user types quit. 
 while True:
@@ -51,6 +52,9 @@ while True:
    tax = calculate_tax(stock_quantity)
    print("Tax for this delivery: " + str(tax))
 
+   # Keep track of the number of deliveries processed
+   deliveries_processed = deliveries_processed + 1
+   print("Number of deliveries processed: " + str(deliveries_processed))
 
 # print the Total Units Processed and the Number of Failed/Rejected Entries
 generate_report(inventory, failed_entries)
