@@ -16,6 +16,11 @@ def process_delivery(current_total, new_value):
     new_total = current_total + new_value
     return new_total
 
+# 3. calculate_tax(amount): A new requirement! This function takes a delivery amount and returns the tax (10% of that specific delivery). 
+def calculate_tax(amount):
+    tax = amount * 0.1
+    return tax
+
 # Initialize inventory to zero
 inventory = 0
 failed_entries = 0
@@ -35,6 +40,10 @@ while True:
    # Process the valid delivery
    inventory = process_delivery(inventory, stock_quantity)
    print ("Inventory updated. Current inventory: " + str(inventory))
+
+   # Calculate the tax for this specifc delivery
+   tax = calculate_tax(stock_quantity)
+   print("Tax for this delivery: " + str(tax))
 
 # 8. Reporting: When the user types quit, print the Total Units Processed and the Number of Failed/Rejected Entries.
 print("\n--- Inventory Report ---")
