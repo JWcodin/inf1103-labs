@@ -13,6 +13,14 @@ def load_inventory():
         # No inventory file yet, so start with an empty inventory
         return 0, []
 
+# Save the final inventory and transaction history to inventorty.txt
+def save_inventory(total, history):
+    with open("inventory.txt", "w") as file:
+        file.write("Final Total:\n")
+        file.write(str(total) + "\n")
+        file.write("Transaction History List:\n")
+        file.write(",".join(str(value) for value in history) + "\n")
+
 # 1. get_valid_input(): Handles the prompt, handles input validation, and returns a valid integer or a "quit" signal. 
 def get_valid_input():
     stock_quantity = input("Enter new stock quantity (or 'quit' to exit): ")
@@ -76,6 +84,10 @@ while True:
 # Print the previously saved inventory information
 print("Final Total:\n" + str(inventory))
 print("Transaction History List:\n" + str(transaction_history))# Save the final inventory and transaction history
+
+# Save the final inventory and transaction history
+save_inventory(inventory, transaction_history)
+print("Inventory and transaction history saved to inventory.txt.")
 
 # print the Total Units Processed and the Number of Failed/Rejected Entries
 generate_report(inventory, failed_entries)
