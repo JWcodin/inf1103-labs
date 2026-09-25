@@ -42,14 +42,13 @@ def generate_report(total_units, failed_attempts):
     print("Total Units Processed: " + str(total_units))
     print("Number of Failed/Rejected Entries: " + str(failed_attempts))
 
-# Initialize inventory to zero
+# Initialize inventory and transaction history
 inventory, transaction_history = load_inventory()
 failed_entries = 0
 deliveries_processed = 0
 
 # Run in a continuous loop asking user to enter a stock quantity, until the user types quit. 
 while True:
-
    stock_quantity = get_valid_input()
    
    if stock_quantity == "quit":
@@ -61,7 +60,10 @@ while True:
 
    # Process the valid delivery
    inventory = process_delivery(inventory, stock_quantity)
-   print ("Inventory updated. Current inventory: " + str(inventory))
+   # Store the valid transaction in the transaction history
+   transaction_history.append(stock_quantity)
+   print("Inventory updated. Current inventory: " + str(inventory))
+   print("Transaction History List: \n" + str(transaction_history) )
 
    # Calculate the tax for this specifc delivery
    tax = calculate_tax(stock_quantity)
@@ -70,10 +72,6 @@ while True:
    # Keep track of the number of deliveries processed
    deliveries_processed = deliveries_processed + 1
    print("Number of deliveries processed: " + str(deliveries_processed))
-   # Store the valid transaction in the transaction history
-   transaction_history.append(stock_quantity)
-   print("Inventory updated. Current inventory: " + str(inventory))
-   print("Transaction History List: \n" + str(transaction_history) )
 
 # Print the previously saved inventory information
 print("Final Total:\n" + str(inventory))
