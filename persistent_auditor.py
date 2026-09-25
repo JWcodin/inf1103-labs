@@ -13,7 +13,7 @@ def load_inventory():
         # No inventory file yet, so start with an empty inventory
         return 0, []
 
-# get_valid_input(): Handles the prompt, handles input validation, and returns a valid integer or a "quit" signal. 
+# 1. get_valid_input(): Handles the prompt, handles input validation, and returns a valid integer or a "quit" signal. 
 def get_valid_input():
     stock_quantity = input("Enter new stock quantity (or 'quit' to exit): ")
 
@@ -75,7 +75,7 @@ while True:
 
 # Print the previously saved inventory information
 print("Final Total:\n" + str(inventory))
-print("Transaction History List:\n" + str(transaction_history))
+print("Transaction History List:\n" + str(transaction_history))# Save the final inventory and transaction history
 
 # print the Total Units Processed and the Number of Failed/Rejected Entries
 generate_report(inventory, failed_entries)
