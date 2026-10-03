@@ -52,8 +52,30 @@ def generate_report(total_units, failed_attempts):
 
 # Initialize inventory and transaction history
 inventory, transaction_history = load_inventory()
-failed_entries = 0
-deliveries_processed = 0
+# If there is no saved inventory, create a dictonary and store at least 3 products
+if not inventory:
+    inventory = {
+        "P001": {
+            "name": "Laptop",
+            "price": 1200.00,
+            "stock": 15,
+            "transactions": []
+        },
+
+        "P002": {
+            "name": "Mouse",
+            "price": 25.50,
+            "stock": 40,
+            "transactions": []
+        },
+
+        "P003": {
+            "name": "Keyboard",
+            "price": 45.00,
+            "stock": 25,
+            "transactions": []
+        }
+    }
 
 # Run in a continuous loop asking user to enter a stock quantity, until the user types quit. 
 while True:
