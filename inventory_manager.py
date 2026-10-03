@@ -29,6 +29,13 @@ def load_inventory():
         return {} # {} represents an empty dictionary.
 
 
+# Create save_inventory() and save data to inventory.json.  
+def save_inventory(inventory):
+    # If the file doesn't exist, Python creates it. If it already exists, its contents are replaced with the new data.
+    with open("inventory.json", "w") as file:
+        json.dump(inventory, file, indent=4)  # indent=4 makes the JSON file more readable.
+    print("Inventory saved successfully to inventory.json.")
+
 # Add a new product to the inventory.
 def add_product(inventory):
     print("\nAdd New Product")
