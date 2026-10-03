@@ -1,57 +1,198 @@
+import json
+import os
+
+# 3. Data Persistence: Check whether inventory.json exists. Create load_inventory() to load inventory.json if it exists. Otherwise, begin with an empty inventory. Create save_inventory() and save data to inventory.json. 
 def load_inventory():
-    try:
-        with open("inventory.txt", "r") as file:
-            lines = file.readlines()
-            # Read the total inventory
-            total = int(lines[1])
-            # Read the transaction history
-            history = [int(value) for value in lines[3].split(",")]
+    # Check if inventory.json exists
+    if os.path.exists("inventory.json"):
+        try:
+            # Reads the JSON data from the file and converts it back into a Python dictionary
+            with open("inventory.json", "r") as file:
+                inventory = json.load(file)
 
-            return total, history
+            print("inventory.json found.")
+            print("Inventory loaded successfully.")
+            return inventory
 
-    except FileNotFoundError:
-        # No inventory file yet, so start with an empty inventory
-        return 0, []
+        # json.JSONDecodeError means the file exists but doesn't contain valid JSON.
+        # FileNotFoundError means the file couldn't be found.
+        except (json.JSONDecodeError, FileNotFoundError):
+            print("Error reading inventory.json.")
+            print("Starting with an empty inventory.")
+            # Begin with an empty inventory.
+            return {} # {} represents an empty dictionary.
 
-# Save the final inventory and transaction history to inventorty.txt
-def save_inventory(total, history):
-    with open("inventory.txt", "w") as file:
-        file.write("Final Total:\n")
-        file.write(str(total) + "\n")
-        file.write("Transaction History List:\n")
-        file.write(",".join(str(value) for value in history) + "\n")
-
-# 1. get_valid_input(): Handles the prompt, handles input validation, and returns a valid integer or a "quit" signal. 
-def get_valid_input():
-    stock_quantity = input("Enter new stock quantity (or 'quit' to exit): ")
-
-    if stock_quantity == "quit":
-        return "quit"
-
-    if not stock_quantity.isdigit():
-        print("Error: Invalid input. Please enter a positive valid number.")
-        return None
     else:
-        return int(stock_quantity)
+        print("inventory.json not found.")
+        print("Starting with an empty inventory.")
+        # Begin with an empty inventory.
+        return {} # {} represents an empty dictionary.
 
-# process_delivery(current_total, new_value): Calculates the new total and returns it. 
-def process_delivery(current_total, new_value):
-    new_total = current_total + new_value
-    return new_total
 
-# calculate_tax(amount): A new requirement! This function takes a delivery amount and returns the tax (10% of that specific delivery). 
-def calculate_tax(amount):
-    tax = amount * 0.1
-    return tax
+# Add a new product to the inventory.
+def add_product(inventory):
+    print("\nAdd New Product")
 
-# generate_report(total_units, failed_attempts): A dedicated function to print the final summary. 
-def generate_report(total_units, failed_attempts):
-    print("\n--- Inventory Report ---")
-    print("Total Units Processed: " + str(total_units))
-    print("Number of Failed/Rejected Entries: " + str(failed_attempts))
+    product_id = input("Product ID: ")
 
-# Initialize inventory and transaction history
-inventory, transaction_history = load_inventory()
+    # Check whether ID already exists
+    if product_id in inventory:
+        print("Error: Product ID already exists.")
+        return False
+
+    # Get the product name.
+    product_name = input("Product Name: ")
+
+    # Validate price
+    try:
+        # Get the price and convert it to a float. If the input is not a valid number, it will raise a ValueError.
+        price = float(input("Price: "))
+    except ValueError:
+        print("Error: Price must be a number.")
+        return False
+
+    # Validate stock
+    try:
+        # Get the stock quantity and convert it to an integer. If the input is not a valid integer, it will raise a ValueError.
+        stock = int(input("Stock Quantity: "))
+        if stock < 0:
+            print("Error: Stock cannot be negative.")
+            return False
+    except ValueError:
+        print("Error: Stock quantity must be an integer.")
+        return False
+
+    # Store product as a dictionary
+    inventory[product_id] = {
+        "name": product_name,
+        "price": price,
+        "stock": stock
+    }
+
+    print("Product added successfully!")
+    # Return True to indicate that the product was added successfully.
+    return True
+
+
+# Update product stock
+def update_stock(inventory):
+    print("\nUpdate Stock")
+    # Get the product ID
+    product_id = input("Enter Product ID: ")
+
+    if product_id not in inventory:
+        print("Product not found.")
+        return False
+
+    # Get the dictionary containing that product's information.
+    product = inventory[product_id]
+
+    print("Product Found:")
+    print("Name:", product["name"])
+    print("Current Stock:", product["stock"])
+
+    try:
+        # Asks the user for the new stock quantity and converts it to an integer.
+        new_quantity = int(input("New Stock Quantity: "))
+
+        # Check for negative stock.
+        if new_quantity < 0:
+            print("Error: Stock cannot be negative.")
+            return False
+    # Handles invalid input.
+    except ValueError:
+        print("Error: Stock quantity must be an integer.")
+        return False
+
+    # Record the stock transaction
+    old_quantity = product["stock"]
+
+    product["stock"] = new_quantity
+
+    # Store transaction amount/history
+    transaction_amount = new_quantity - old_quantity
+
+    if "transactions" not in product:
+        product["transactions"] = []
+
+    product["transactions"].append(transaction_amount)
+
+    print("Stock updated successfully!")
+    return True
+
+
+# Search for a product
+def search_product(inventory):
+    print("\nSearch Product")
+
+    product_id = input("Enter Product ID: ")
+    if product_id not in inventory:
+        print("Product not found.")
+        return False
+
+    product = inventory[product_id]
+
+    print("Product Found")
+    print("-" * 48)
+    print("ID:", product_id)
+    print("Name:", product["name"])
+    print(f"Price: ${product['price']:.2f}") # display the number as a floating-point number with exactly 2 decimal places.
+    print("Stock:", product["stock"])
+    print("-" * 48)
+
+    return True
+
+
+# Display all products
+def display_all(inventory):
+    print("\nCurrent Inventory")
+    print("-" * 48)
+
+    if not inventory:
+        print("Inventory is empty.")
+        print("-" * 48)
+        return
+    # Looping through products 
+    for product_id, product in inventory.items():
+        print(
+            f"ID: {product_id} | "
+            f"Name: {product['name']} | "
+            f"Price: ${product['price']:.2f} | "
+            f"Stock: {product['stock']}"
+        )
+
+    print("-" * 48)
+
+
+# Menu
+def get_valid_input():
+    print("\n----------- MENU -----------")
+    print("1. Display All Products")
+    print("2. Add Product")
+    print("3. Update Stock")
+    print("4. Search Product")
+    print("5. Save Inventory")
+    print("6. Exit")
+    print("----------------------------")
+
+    option = input("Enter option: ")
+
+    if not option.isdigit():
+        print("Error: Please enter a number from 1 to 6.")
+        return None
+
+    option = int(option)
+
+    if option < 1 or option > 6:
+        print("Error: Please enter a number from 1 to 6.")
+        return None
+
+    return option
+
+
+# Initial Inventry
+inventory = load_inventory()
+
 # If there is no saved inventory, create a dictonary and store at least 3 products
 if not inventory:
     inventory = {
@@ -77,39 +218,35 @@ if not inventory:
         }
     }
 
-# Run in a continuous loop asking user to enter a stock quantity, until the user types quit. 
+# Main loop for the menu-driven program
 while True:
-   stock_quantity = get_valid_input()
-   
-   if stock_quantity == "quit":
+
+    print("\n" + "=" * 40)
+    print("INVENTORY MANAGEMENT SYSTEM")
+    print("=" * 40)
+
+    option = get_valid_input()
+
+    if option == 1:
+        display_all(inventory)
+
+    elif option == 2:
+        add_product(inventory)
+
+    elif option == 3:
+        update_stock(inventory)
+
+    elif option == 4:
+        search_product(inventory)
+
+    elif option == 5:
+        print("\nSaving inventory...")
+        save_inventory(inventory)
+
+    elif option == 6:
+        print("\nSaving inventory before exit...")
+        save_inventory(inventory)
+
+        print("Thank you for using Inventory Management System.")
+        print("Program terminated.")
         break
-
-   if stock_quantity is None:
-        failed_entries = failed_entries + 1
-        continue
-
-   # Process the valid delivery
-   inventory = process_delivery(inventory, stock_quantity)
-   # Store the valid transaction in the transaction history
-   transaction_history.append(stock_quantity)
-   print("Inventory updated. Current inventory: " + str(inventory))
-   print("Transaction History List: \n" + str(transaction_history) )
-
-   # Calculate the tax for this specifc delivery
-   tax = calculate_tax(stock_quantity)
-   print("Tax for this delivery: " + str(tax))
-
-   # Keep track of the number of deliveries processed
-   deliveries_processed = deliveries_processed + 1
-   print("Number of deliveries processed: " + str(deliveries_processed))
-
-# Print the previously saved inventory information
-print("Final Total:\n" + str(inventory))
-print("Transaction History List:\n" + str(transaction_history))# Save the final inventory and transaction history
-
-# Save the final inventory and transaction history
-save_inventory(inventory, transaction_history)
-print("Inventory and transaction history saved to inventory.txt.")
-
-# print the Total Units Processed and the Number of Failed/Rejected Entries
-generate_report(inventory, failed_entries)
