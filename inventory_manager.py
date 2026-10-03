@@ -70,11 +70,10 @@ def add_product(inventory):
         return False
 
     # Store product as a dictionary
-    inventory[product_id] = {
-        "name": product_name,
-        "price": price,
-        "stock": stock
-    }
+    inventory[product_id] = { "name": product_name, 
+                                 "price": price, 
+                                 "stock": stock, 
+                                 "transactions": [] }
 
     print("Product added successfully!")
     # Return True to indicate that the product was added successfully.
