@@ -67,38 +67,65 @@ class Inventory:
 
 # Data Persistence: Check whether inventory.json exists. Create load_inventory() to load inventory.json if it exists. Otherwise, begin with an empty inventory.
 def load_inventory():
+    # Create an empty Inventory object
+    inventory = Inventory()
+
     # Check if inventory.json exists
-    if os.path.exists("inventory.json"):
-        try:
-            # Reads the JSON data from the file and converts it back into a Python dictionary
-            with open("inventory.json", "r") as file:
-                inventory = json.load(file)
-
-            print("inventory.json found.")
-            print("Inventory loaded successfully.")
-            return inventory
-
-        # json.JSONDecodeError means the file exists but doesn't contain valid JSON.
-        # FileNotFoundError means the file couldn't be found.
-        except (json.JSONDecodeError, FileNotFoundError):
-            print("Error reading inventory.json.")
-            print("Starting with an empty inventory.")
-            # Begin with an empty inventory.
-            return {} # {} represents an empty dictionary.
-
-    else:
+    if not os.path.exists("inventory.json"):
         print("inventory.json not found.")
         print("Starting with an empty inventory.")
-        # Begin with an empty inventory.
-        return {} # {} represents an empty dictionary.
+        return inventory
+
+    try:
+        # Read JSON data and convert it into a Python dictionary
+        with open("inventory.json", "r") as file:
+            saved_data = json.load(file)
+
+        # Convert each saved product into a Product object
+        for product_id, details in saved_data.items():
+            product = Product(
+                product_id,
+                details["name"],
+                details["price"],
+                details["stock"]
+            )
+
+            inventory.add_product(product)
+
+        print("inventory.json found.")
+        print("Inventory loaded successfully.")
+        return inventory
+
+    except (json.JSONDecodeError, FileNotFoundError, KeyError, TypeError):
+        print("Error reading inventory.json.")
+        print("Starting with an empty inventory.")
+        return Inventory()
+
 
 
 # Create save_inventory() and save data to inventory.json.  
 def save_inventory(inventory):
-    # If the file doesn't exist, Python creates it. If it already exists, its contents are replaced with the new data.
-    with open("inventory.json", "w") as file:
-        json.dump(inventory, file, indent=4)  # indent=4 makes the JSON file more readable.
-    print("Inventory saved successfully to inventory.json.")
+    saved_data = {}
+
+    for product_id, product in inventory.get_products().items():
+        # Use the Product object's display_information method
+        # for displaying, but save its attributes below.
+        # Name, price and stock are accessed internally here
+        # using Python's name-mangled attribute names.
+        saved_data[product_id] = {
+            "name": product._Product__name,
+            "price": product._Product__price,
+            "stock": product._Product__stock
+        }
+
+    try:
+        with open("inventory.json", "w") as file:
+            json.dump(saved_data, file, indent=4)
+
+        print("Inventory saved successfully to inventory.json.")
+
+    except OSError as error:
+        print(f"Error saving inventory: {error}")
 
 # Add a new product to the inventory.
 def add_product(inventory):
@@ -106,132 +133,86 @@ def add_product(inventory):
 
     product_id = input("Product ID: ")
 
-    # Check whether ID already exists
-    if product_id in inventory:
+    if not product_id:
+        print("Error: Product ID cannot be empty.")
+        return
+
+    if inventory.search_product(product_id) is not None:
         print("Error: Product ID already exists.")
-        return False
+        return
 
-    # Get the product name.
-    product_name = input("Product Name: ")
+    name = input("Product Name: ").strip()
 
-    # Validate price
+    if not name:
+        print("Error: Product name cannot be empty.")
+        return
+
     try:
-        # Get the price and convert it to a float. If the input is not a valid number, it will raise a ValueError.
         price = float(input("Price: "))
-    except ValueError:
-        print("Error: Price must be a number.")
-        return False
 
-    # Validate stock
-    try:
-        # Get the stock quantity and convert it to an integer. If the input is not a valid integer, it will raise a ValueError.
+        if price < 0:
+            print("Error: Price cannot be negative.")
+            return
+
         stock = int(input("Stock Quantity: "))
+
         if stock < 0:
             print("Error: Stock cannot be negative.")
-            return False
+            return
+
     except ValueError:
-        print("Error: Stock quantity must be an integer.")
-        return False
+        print("Error: Enter a valid price and whole-number stock.")
+        return
 
-    # Store product as a dictionary
-    inventory[product_id] = { "name": product_name, 
-                                 "price": price, 
-                                 "stock": stock, 
-                                 "transactions": [] }
+    product = Product(product_id, name, price, stock)
 
+    inventory.add_product(product)
     print("Product added successfully!")
-    # Return True to indicate that the product was added successfully.
-    return True
 
 
 # Update product stock
 def update_stock(inventory):
     print("\nUpdate Stock")
-    # Get the product ID
-    product_id = input("Enter Product ID: ")
 
-    if product_id not in inventory:
+    product_id = input("Enter Product ID: ").strip()
+    product = inventory.search_product(product_id)
+
+    if product is None:
         print("Product not found.")
-        return False
-
-    # Get the dictionary containing that product's information.
-    product = inventory[product_id]
+        return
 
     print("Product Found:")
-    print("Name:", product["name"])
-    print("Current Stock:", product["stock"])
+    product.display_information()
 
     try:
-        # Asks the user for the new stock quantity and converts it to an integer.
         new_quantity = int(input("New Stock Quantity: "))
 
-        # Check for negative stock.
         if new_quantity < 0:
             print("Error: Stock cannot be negative.")
-            return False
-    # Handles invalid input.
+            return
+
     except ValueError:
         print("Error: Stock quantity must be an integer.")
-        return False
+        return
 
-    # Record the stock transaction
-    old_quantity = product["stock"]
-
-    product["stock"] = new_quantity
-
-    # Store transaction amount/history
-    transaction_amount = new_quantity - old_quantity
-
-    if "transactions" not in product:
-        product["transactions"] = []
-
-    product["transactions"].append(transaction_amount)
-
+    product.update_stock(new_quantity)
     print("Stock updated successfully!")
-    return True
+
 
 
 # Search for a product
 def search_product(inventory):
     print("\nSearch Product")
 
-    product_id = input("Enter Product ID: ")
-    if product_id not in inventory:
-        print("Product not found.")
-        return False
+    product_id = input("Enter Product ID: ").strip()
+    product = inventory.search_product(product_id)
 
-    product = inventory[product_id]
+    if product is None:
+        print("Product not found.")
+        return
 
     print("Product Found")
-    print("-" * 48)
-    print("ID:", product_id)
-    print("Name:", product["name"])
-    print(f"Price: ${product['price']:.2f}") # display the number as a floating-point number with exactly 2 decimal places.
-    print("Stock:", product["stock"])
-    print("-" * 48)
-
-    return True
-
-
-# Display all products
-def display_all(inventory):
-    print("\nCurrent Inventory")
-    print("-" * 48)
-
-    if not inventory:
-        print("Inventory is empty.")
-        print("-" * 48)
-        return
-    # Looping through products 
-    for product_id, product in inventory.items():
-        print(
-            f"ID: {product_id} | "
-            f"Name: {product['name']} | "
-            f"Price: ${product['price']:.2f} | "
-            f"Stock: {product['stock']}"
-        )
-
-    print("-" * 48)
+    product.display_information()
 
 
 # Menu
