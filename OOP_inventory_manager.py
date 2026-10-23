@@ -244,34 +244,19 @@ def get_valid_input():
 # Initial Inventry
 inventory = load_inventory()
 
-# If there is no saved inventory, create a dictonary and store at least 3 products
-if not inventory:
-    inventory = {
-        "P001": {
-            "name": "Laptop",
-            "price": 1200.00,
-            "stock": 15,
-            "transactions": []
-        },
+# If there is no saved inventory, create at least 3 products
+if not inventory.get_product_ids():
+    product = Product("P001", "Laptop", 1200.00, 15)
+    inventory.add_product(product)
 
-        "P002": {
-            "name": "Mouse",
-            "price": 25.50,
-            "stock": 40,
-            "transactions": []
-        },
+    product = Product("P002", "Mouse", 25.50, 40)
+    inventory.add_product(product)
 
-        "P003": {
-            "name": "Keyboard",
-            "price": 45.00,
-            "stock": 25,
-            "transactions": []
-        }
-    }
+    product = Product("P003", "Keyboard", 45.00, 25)
+    inventory.add_product(product)
 
 # Main loop for the menu-driven program
 while True:
-
     print("\n" + "=" * 40)
     print("INVENTORY MANAGEMENT SYSTEM")
     print("=" * 40)
@@ -279,7 +264,7 @@ while True:
     option = get_valid_input()
 
     if option == 1:
-        display_all(inventory)
+        inventory.display_all()
 
     elif option == 2:
         add_product(inventory)
@@ -298,6 +283,6 @@ while True:
         print("\nSaving inventory before exit...")
         save_inventory(inventory)
 
-        print("Thank you for using Inventory Management System.")
+        print("\nThank you for using Inventory Management System.")
         print("Program terminated.")
         break
