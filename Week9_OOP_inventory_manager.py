@@ -28,9 +28,15 @@ class Product(ABC): # Product inherits from ABC
     def get_fulfilment_info(self):
         pass
 
+# CanBeShipped interface-style abstract base class
+# Any class that promises to support shipping must provide a method for calculating the shipping cost.
+class CanBeShipped(ABC):
+    @abstractmethod
+    def calculate_shipping_cost(self):
+        pass
 
 # Create a PhysicalProduct class
-class PhysicalProduct(Product):
+class PhysicalProduct(Product, CanBeShipped):
     def __init__(self, product_id, name, price, stock, weight):
         super().__init__(product_id, name, price, stock)
         # weight: the weight of the product in kilograms.
@@ -47,6 +53,9 @@ class PhysicalProduct(Product):
     def get_fulfilment_info(self):
         return "This product requires physical shipping."
 
+    def calculate_shipping_cost(self):
+        # Example: $5 per kilogram
+        return self.__weight * 5
 
 # Create a DigitalProduct class
 class DigitalProduct(Product):
