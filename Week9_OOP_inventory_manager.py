@@ -5,8 +5,8 @@ from abc import ABC, abstractmethod
 # Product class: Responsible for managing one product
 class Product(ABC): # Product inherits from ABC
     def __init__(self, product_id, name, price, stock):
-        self._product_id = product_id
-        self._name = name
+        self._product_id = product_id 
+        self._name = name 
         self._price = price
         self._stock = stock
 
@@ -15,14 +15,14 @@ class Product(ABC): # Product inherits from ABC
             print("Error: Stock cannot be negative.")
             return
 
-        self.__stock = quantity
+        self._stock = quantity
 
     def display_information(self):
         print("-" * 48)
-        print("ID:", self.__product_id)
-        print("Name:", self.__name)
-        print(f"Price: ${self.__price:.2f}")
-        print("Stock:", self.__stock)
+        print("ID:", self._product_id)
+        print("Name:", self._name)
+        print(f"Price: ${self._price:.2f}")
+        print("Stock:", self._stock)
 
     @abstractmethod
     def get_fulfilment_info(self):
@@ -47,7 +47,6 @@ class PhysicalProduct(Product, CanBeShipped):
         print("Weight:", self.__weight, "kg")
         print("Fulfilment:", self.get_fulfilment_info())
         print(f"Shipping Cost: ${self.calculate_shipping_cost():.2f}")
-        print("-" * 48)
 
     # PhysicalProduct returns a message explaining that the product requires physical shipping.
     def get_fulfilment_info(self):
@@ -68,7 +67,6 @@ class DigitalProduct(Product):
         super().display_information()
         print("Download Size:", self.__download_size, "MB")
         print("Fulfilment:", self.get_fulfilment_info())
-        print("-" * 48)
 
     # DigitalProduct returns a message explaining that the product is delivered digitally.
     def get_fulfilment_info(self):
@@ -94,7 +92,6 @@ class Inventory:
     # Display all products
     def display_all(self):
         print("\nCurrent Inventory")
-        print("-" * 48)
 
         if not self.__products:
             print("Inventory is empty.")
@@ -171,10 +168,10 @@ def save_inventory(inventory):
         # using Python's name-mangled attribute names.
 
         product_data = {  
-            "product_id": product._Product__product_id, 
-            "name": product._Product__name,
-            "price": product._Product__price,
-            "stock": product._Product__stock
+            "product_id": product._product_id, 
+            "name": product._name,
+            "price": product._price,
+            "stock": product._stock
         }
 
         if isinstance(product, PhysicalProduct):
