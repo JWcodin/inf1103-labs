@@ -5,10 +5,10 @@ from abc import ABC, abstractmethod
 # Product class: Responsible for managing one product
 class Product(ABC): # Product inherits from ABC
     def __init__(self, product_id, name, price, stock):
-        self.__product_id = product_id
-        self.__name = name
-        self.__price = price
-        self.__stock = stock
+        self._product_id = product_id
+        self._name = name
+        self._price = price
+        self._stock = stock
 
     def update_stock(self, quantity):
         if quantity < 0:
