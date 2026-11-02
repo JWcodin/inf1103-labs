@@ -39,3 +39,4 @@ class Inventory:
     # Return all products for saving
     def get_products(self):
         return self.__products.copy()
+    
