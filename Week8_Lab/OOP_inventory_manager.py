@@ -1,69 +1,8 @@
 import json
 import os
 
-# Product class: Responsible for managing one product
-class Product:
-    def __init__(self, product_id, name, price, stock):
-        self.__product_id = product_id
-        self.__name = name
-        self.__price = price
-        self.__stock = stock
-
-    def update_stock(self, quantity):
-        if quantity < 0:
-            print("Error: Stock cannot be negative.")
-            return
-
-        self.__stock = quantity
-
-    def display_information(self):
-        print("-" * 48)
-        print("ID:", self.__product_id)
-        print("Name:", self.__name)
-        print(f"Price: ${self.__price:.2f}")
-        print("Stock:", self.__stock)
-        print("-" * 48)
-
-# Inventory class: Responsible for managing a collection of products
-class Inventory:
-    def __init__(self):
-        self.__products = {}
-
-    # Add a product
-    def add_product(self, product):
-        product_id = product._Product__product_id
-        self.__products[product_id] = product
-
-    # Search for a product
-    def search_product(self, product_id):
-        return self.__products.get(product_id)
-
-    # Display all products
-    def display_all(self):
-        print("\nCurrent Inventory")
-        print("-" * 48)
-
-        if not self.__products:
-            print("Inventory is empty.")
-        else:
-            for product_id, product in self.__products.items():
-                print(
-                    f"ID: {product_id} | "
-                    f"Name: {product._Product__name} | "
-                    f"Price: ${product._Product__price:.2f} | "
-                    f"Stock: {product._Product__stock}"
-                )
-
-        print("-" * 48)
-
-    # Return product IDs for saving and checking inventory
-    def get_product_ids(self):
-        return list(self.__products.keys())
-
-    # Return all products for saving
-    def get_products(self):
-        return self.__products.copy()
-    
+from product import Product
+from inventory import Inventory
 
 # Data Persistence: Check whether inventory.json exists. Create load_inventory() to load inventory.json if it exists. Otherwise, begin with an empty inventory.
 def load_inventory():
