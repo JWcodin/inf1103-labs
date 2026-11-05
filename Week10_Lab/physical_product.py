@@ -1,10 +1,10 @@
-from product import Product
+from product import Product 
 from can_be_shipped import CanBeShipped
 
 # Create a PhysicalProduct class
 class PhysicalProduct(Product, CanBeShipped):
-    def __init__(self, product_id, name, price, stock, weight):
-        super().__init__(product_id, name, price, stock)
+    def __init__(self, product_id, name, price, stock, weight, supplier):
+        super().__init__(product_id, name, price, stock, supplier)
         # weight: the weight of the product in kilograms.
         self.__weight = weight
 

@@ -2,8 +2,8 @@ from product import Product
 
 # Create a DigitalProduct class
 class DigitalProduct(Product):
-    def __init__(self, product_id, name, price, stock, download_size):
-        super().__init__(product_id, name, price, stock)
+    def __init__(self, product_id, name, price, stock, download_size, supplier):
+        super().__init__(product_id, name, price, stock, supplier)
         # download_size: the size of the downloadable product in megabytes.
         self.__download_size = download_size
 
