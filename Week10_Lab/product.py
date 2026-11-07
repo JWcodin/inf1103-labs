@@ -10,6 +10,11 @@ class Product(ABC): # Product inherits from ABC
         self._stock = stock
         self._supplier = supplier # Product constructor should accept a Supplier object, not just the supplier's name or ID
 
+    # Allow other classes to access the product price
+    @property
+    def price(self) -> float:
+        return self._price
+
     def update_stock(self, quantity):
         if quantity < 0:
             print("Error: Stock cannot be negative.")

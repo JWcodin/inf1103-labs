@@ -2,12 +2,13 @@ from supplier import Supplier
 from physical_product import PhysicalProduct
 from digital_product import DigitalProduct
 from inventory import Inventory
+from order import Order
 
 
 # TEST 1: ASSOCIATION
 print("\n========== TEST 1: ASSOCIATION ==========")
 
-# Create a Supplier object
+# 1. Create a Supplier object
 supplier1 = Supplier(
     "S001",
     "ABC Technology",
@@ -15,7 +16,7 @@ supplier1 = Supplier(
 )
 
 
-# Create a PhysicalProduct using that Supplier
+# 2. Create a PhysicalProduct using that Supplier
 physical_product = PhysicalProduct(
     "P001",
     "Laptop",
@@ -26,7 +27,7 @@ physical_product = PhysicalProduct(
 )
 
 
-# Create a DigitalProduct using the same Supplier
+# 3. Create a DigitalProduct using the same Supplier
 digital_product = DigitalProduct(
     "P002",
     "E-book",
@@ -36,7 +37,7 @@ digital_product = DigitalProduct(
     supplier1
 )
 
-# Display both products and their supplier information
+# 4. Display both products and their supplier information
 print("\n--- PHYSICAL PRODUCT ---")
 physical_product.display_information()
 
@@ -44,7 +45,7 @@ print("\n--- DIGITAL PRODUCT ---")
 digital_product.display_information()
 
 
-# Confirm Supplier and Products are separate objects
+# 5. Confirm Supplier and Products are separate objects
 print("\n--- CHECKING OBJECT RELATIONSHIPS ---")
 
 print(
@@ -67,6 +68,7 @@ print(
 print("\n--- DELETING SUPPLIER VARIABLE ---")
 
 print("Deleting supplier1...")
+# del supplier1 only removes the variable called supplier1. It does not destroy the supplier object because the products still refer to it.
 del supplier1
 
 
@@ -83,14 +85,14 @@ digital_product.display_information()
 # TEST 2: AGGREGATION
 print("\n========== TEST 2: AGGREGATION ==========")
 
-# Create a Supplier
+# 1. Create a Supplier
 supplier2 = Supplier(
     "S002",
     "XYZ Electronics",
     "xyz@example.com"
 )
 
-# Create a Product BEFORE adding it to any Inventory
+# 2. Create a Product BEFORE adding it to any Inventory
 product = PhysicalProduct(
     "P003",
     "Keyboard",
@@ -103,40 +105,123 @@ product = PhysicalProduct(
 print("\n--- PRODUCT BEFORE ADDING TO INVENTORY ---")
 product.display_information()
 
-# Create Inventory A and Inventory B
+# 3. Create Inventory A and Inventory B
 inventory_a = Inventory()
 inventory_b = Inventory()
 
-# Add the Product to Inventory A
+# 4. Add the Product to Inventory A
 print("\n--- ADDING PRODUCT TO INVENTORY A ---")
 inventory_a.add_product(product)
 
-# Remove the Product from Inventory A
+# 5. Remove the Product from Inventory A
 print("\n--- REMOVING PRODUCT FROM INVENTORY A ---")
 inventory_a.remove_product(product._product_id)
 
-# Check whether the Product can still be used
+# 6. Check whether the Product can still be used
 print("\n--- PRODUCT AFTER REMOVAL FROM INVENTORY A ---")
 product.display_information()
 
-# Add the SAME Product object to Inventory B
+# 7. Add the SAME Product object to Inventory B
 print("\n--- ADDING SAME PRODUCT TO INVENTORY B ---")
 inventory_b.add_product(product)
 
-# Check whether the Product exists in Inventory B
+# 8. Check whether the Product exists in Inventory B
 print("\n--- CHECKING INVENTORY B ---")
 found_product = inventory_b.find_product("P003")
 
+# 9. The same product has moved from one inventory to another.
 print("Product successfully added to Inventory B:",
       found_product is product)
 
-# Check that Inventory A no longer contains the Product
+# 10. Check that Inventory A no longer contains the Product
 print("\n--- CHECKING INVENTORY A ---")
 removed_product = inventory_a.find_product("P003")
 
 print("Product removed from Inventory A:",
       removed_product is None)
 
-# Check that the Product still works
+# 11. Check that the Product still works
 print("\n--- FINAL PRODUCT CHECK ---")
 product.display_information()
+
+
+# TEST 3: COMPOSITION
+print("\n========== TEST 3: COMPOSITION ==========")
+
+# 1. Create two Products
+supplier3 = Supplier(
+    "S003",
+    "Tech World",
+    "tech@example.com"
+)
+
+product1 = PhysicalProduct(
+    "P004", "Mouse", 30.00, 20, 0.5, supplier3
+)
+
+product2 = DigitalProduct(
+    "P005", "Antivirus Software", 50.00, 100, 200, supplier3
+)
+
+# 2. Create the first Order
+order1 = Order("O001")
+
+# 3. Add two Products to the first Order using add_order_line()
+order1.add_order_line(product1, 2)
+order1.add_order_line(product2, 1)
+
+# 4. Display the first Order's order lines and calculate the order total
+print("\n--- ORDER 1 ---")
+
+for line in order1.order_lines:
+    print("Product:", line.product._name)
+    print("Quantity:", line.quantity)
+    print("Subtotal: $", line.calculate_subtotal())
+
+print("Order 1 Total: $", order1.calculate_total())
+
+# 5. Create a second Order
+order2 = Order("O002")
+
+# Add the SAME Product object to the second Order
+order2.add_order_line(product1, 3)
+
+
+# 7. Compare the OrderLine and Product objects
+print("\n--- CHECKING OBJECT RELATIONSHIPS ---")
+
+order1_line1 = order1.order_lines[0]
+order2_line1 = order2.order_lines[0]
+
+print(
+    "Are the OrderLine objects different?",
+    order1_line1 is not order2_line1
+)
+print(
+    "Do both OrderLines refer to the same Product?",
+    order1_line1.product is order2_line1.product
+)
+print(
+    "Number of OrderLine objects:",
+    len(order1.order_lines) + len(order2.order_lines)
+)
+print(
+    "Number of distinct Product objects:",
+    len({id(product1), id(product2)})
+)
+
+# 8. Remove Order 1 from the test scenario
+print("\n--- REMOVING ORDER 1 ---")
+del order1
+
+# 9. Check that the Products still exist
+print("\n--- CHECKING PRODUCTS AFTER DELETING ORDER 1 ---")
+
+product1.display_information()
+product2.display_information()
+
+# 10. Check that Order 2 still exists and works
+print("\n--- CHECKING ORDER 2 ---")
+
+print("Order 2 remaining order lines:", len(order2.order_lines))
+print("Order 2 total: $", order2.calculate_total())
