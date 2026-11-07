@@ -3,6 +3,7 @@ from physical_product import PhysicalProduct
 from digital_product import DigitalProduct
 from inventory import Inventory
 from order import Order
+from product import Product
 
 
 # TEST 1: ASSOCIATION
@@ -225,3 +226,38 @@ print("\n--- CHECKING ORDER 2 ---")
 
 print("Order 2 remaining order lines:", len(order2.order_lines))
 print("Order 2 total: $", order2.calculate_total())
+
+
+# TEST 4: LISKOV SUBSTITUTION PRINCIPLE (LSP)
+print("\n========== TEST 4: LSP ==========")
+
+# Create a function that accepts a Product object
+def show_product_details(product: Product) -> None:
+    product.display_information()
+    print(product.get_fulfilment_info())
+
+
+# TEST 4A: Test with PhysicalProduct
+print("\n--- TESTING PHYSICAL PRODUCT ---")
+
+show_product_details(physical_product)
+
+
+# TEST 4B: Test with DigitalProduct
+print("\n--- TESTING DIGITAL PRODUCT ---")
+
+show_product_details(digital_product)
+
+
+# TEST 4C: Add both product types to Inventory
+print("\n--- ADDING BOTH PRODUCTS TO INVENTORY ---")
+
+lsp_inventory = Inventory()
+
+lsp_inventory.add_product(physical_product)
+lsp_inventory.add_product(digital_product)
+
+
+# TEST 4D: Display all products using the same Inventory method
+print("\n--- DISPLAYING ALL INVENTORY PRODUCTS ---")
+lsp_inventory.display_all()

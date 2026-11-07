@@ -32,6 +32,9 @@ class Product(ABC): # Product inherits from ABC
         print("\nSupplier Information:")
         self._supplier.display_information()  # Display supplier information using the Supplier object
 
+    # This means every concrete child class must provide its own version of get_fulfilment_info().
+    # PhysicalProduct explains physical delivery.
+    # DigitalProduct explains digital delivery.
     @abstractmethod
     def get_fulfilment_info(self):
         pass

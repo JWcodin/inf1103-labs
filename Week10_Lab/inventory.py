@@ -28,7 +28,7 @@ class Inventory:
             self.products.remove(product)
 
     # Display all products
-    def display_all(self):
+    def display_all(self) -> None:
         print("\nCurrent Inventory")
 
         if not self.products:
@@ -40,6 +40,7 @@ class Inventory:
         print("-" * 48)
 
     # Return all products for saving
-    def get_products(self):
+    def get_products(self) -> list[Product]:
         return self.products.copy()
+
 
