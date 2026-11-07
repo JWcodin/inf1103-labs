@@ -261,3 +261,24 @@ lsp_inventory.add_product(digital_product)
 # TEST 4D: Display all products using the same Inventory method
 print("\n--- DISPLAYING ALL INVENTORY PRODUCTS ---")
 lsp_inventory.display_all()
+
+
+# TEST 5: POLYMORPHISM
+
+print("\n========== TEST 5: POLYMORPHISM ==========")
+
+# Create a new Inventory
+polymorphism_inventory = Inventory()
+
+# Add one PhysicalProduct and one DigitalProduct
+polymorphism_inventory.add_product(physical_product)
+polymorphism_inventory.add_product(digital_product)
+
+# Display information and fulfilment details for every Product
+print("\n--- DISPLAYING PRODUCT INFORMATION AND FULFILMENT ---")
+
+for product in polymorphism_inventory.products:
+    product.display_information()
+    print("Fulfilment Information:")
+    print(product.get_fulfilment_info())
+    print("-" * 48)
