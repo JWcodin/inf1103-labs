@@ -2,7 +2,8 @@ from product import Product
 
 # Inventory class: Responsible for managing a collection of products
 class Inventory:
-    def __init__(self):
+
+    def __init__(self) -> None:
         # self.products is the inventory's product collection.
         # # list means it is a list.
         # [Product] means the list is intended to contain Product objects.
@@ -14,9 +15,10 @@ class Inventory:
         self.products.append(product)
 
     # Search for a product
-    def find_product(self, product_id: str) -> Product | None: # Function can return either. A Product object, if found. None, if not found.
+    def find_product(self, product_id: str) -> Product | None:
+        #Use the Product property instead of accessing its internal attribute.
         for product in self.products:
-            if product._product_id == product_id:
+            if product.product_id == product_id:
                 return product
         return None
 
@@ -42,5 +44,6 @@ class Inventory:
     # Return all products for saving
     def get_products(self) -> list[Product]:
         return self.products.copy()
+
 
 

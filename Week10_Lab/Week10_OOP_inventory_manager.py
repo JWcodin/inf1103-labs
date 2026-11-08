@@ -1,14 +1,18 @@
+
 import json
 import os
 
 from product import Product
-from can_be_shipped import CanBeShipped
 from physical_product import PhysicalProduct
 from digital_product import DigitalProduct
 from inventory import Inventory
+from supplier import Supplier
+
 
 # Data Persistence: Check whether inventory.json exists. Create load_inventory() to load inventory.json if it exists. Otherwise, begin with an empty inventory.
-def load_inventory():
+
+def load_inventory() -> Inventory:
+
     # Create an empty Inventory object
     inventory = Inventory()
 
@@ -23,80 +27,128 @@ def load_inventory():
         with open("inventory.json", "r") as file:
             saved_data = json.load(file)
 
+        # Empty dictionary to store Supplier objects when loading your inventory from inventory.json
+        suppliers = {}
+
+        for supplier_id, details in saved_data["suppliers"].items():
+
+            suppliers[supplier_id] = Supplier(
+                supplier_id,
+                details["name"],
+                details["contact_email"]
+            )
+
         # Convert each saved product into a Product object
-        for details in saved_data:  
-            product_id = details["product_id"]  
-            product_type = details.get("type", "PhysicalProduct") 
+        for details in saved_data["products"]:
+
+            product_id = details["product_id"]
+            product_type = details.get("type", "PhysicalProduct")
+
+            # Retrieve the existing Supplier object.
+            supplier = suppliers[details["supplier_id"]]
 
             if product_type == "DigitalProduct":
+
                 product = DigitalProduct(
                     product_id,
                     details["name"],
                     details["price"],
                     details["stock"],
-                    details.get("download_size", 0)
+                    details.get("download_size", 0),
+                    supplier
                 )
 
             else:
+
                 product = PhysicalProduct(
                     product_id,
                     details["name"],
                     details["price"],
                     details["stock"],
-                    details.get("weight", 0)
+                    details.get("weight", 0),
+                    supplier
                 )
 
             inventory.add_product(product)
 
         print("inventory.json found.")
         print("Inventory loaded successfully.")
+
         return inventory
 
-    except (json.JSONDecodeError, FileNotFoundError, KeyError, TypeError):
+    except (json.JSONDecodeError, FileNotFoundError,
+            KeyError, TypeError, ValueError):
+
         print("Error reading inventory.json.")
         print("Starting with an empty inventory.")
+
         return Inventory()
 
 
 # Create save_inventory() and save data to inventory.json.
-def save_inventory(inventory):
+
+def save_inventory(inventory: Inventory) -> None:
     saved_data = []
+    #Store Supplier objects separately to avoid duplication.
+    suppliers = {}
 
     for product in inventory.get_products():
+
         # Use the Product object's display_information method
         # for displaying, but save its attributes below.
-        # Name, price and stock are accessed internally here
-        # using Python's name-mangled attribute names.
 
-        product_data = {  
-            "product_id": product._product_id, 
-            "name": product._name,
-            "price": product._price,
-            "stock": product._stock
+        # Use Product properties instead of internal attributes.
+        product_data = {
+            "product_id": product.product_id,
+            "name": product.name,
+            "price": product.price,
+            "stock": product.stock,
+
+            # Store the Supplier ID as a reference.
+            "supplier_id": product.supplier.supplier_id
+        }
+
+        # Save each Supplier once.
+        supplier = product.supplier
+
+        suppliers[supplier.supplier_id] = {
+            "name": supplier.name,
+            "contact_email": supplier.contact_email
         }
 
         if isinstance(product, PhysicalProduct):
-            product_data["type"] = "PhysicalProduct"  
-            product_data["weight"] = product._PhysicalProduct__weight 
+
+            product_data["type"] = "PhysicalProduct"
+            product_data["weight"] = product.weight
 
         elif isinstance(product, DigitalProduct):
-            product_data["type"] = "DigitalProduct" 
-            product_data["download_size"] = product._DigitalProduct__download_size
+
+            product_data["type"] = "DigitalProduct"
+            product_data["download_size"] = product.download_size
 
         saved_data.append(product_data)
 
+    # Save Suppliers and Products together.
+    inventory_data = {
+        "suppliers": suppliers,
+        "products": saved_data
+    }
+
     try:
         with open("inventory.json", "w") as file:
-            json.dump(saved_data, file, indent=4)
+
+            json.dump(inventory_data, file, indent=4)
 
         print("Inventory saved successfully to inventory.json.")
 
     except OSError as error:
+
         print(f"Error saving inventory: {error}")
 
 
 # Add a new product to the inventory.
-def add_product(inventory):
+def add_product(inventory: Inventory) -> None:
+
     print("\nAdd New Product")
 
     product_id = input("Product ID: ")
@@ -105,7 +157,8 @@ def add_product(inventory):
         print("Error: Product ID cannot be empty.")
         return
 
-    if inventory.search_product(product_id) is not None:
+    # Use find_product() from the Lab 8 Inventory class.
+    if inventory.find_product(product_id) is not None:
         print("Error: Product ID already exists.")
         return
 
@@ -132,39 +185,58 @@ def add_product(inventory):
         print("Error: Enter a valid price and whole-number stock.")
         return
 
-    print("\nProduct Type:") 
-    print("1. Physical Product") 
-    print("2. Digital Product") 
+    # Create a Supplier object for the new Product.
+    print("\nSupplier Information")
+
+    supplier_id = input("Supplier ID: ").strip()
+    supplier_name = input("Supplier Name: ").strip()
+    contact_email = input("Supplier Email: ").strip()
+
+    if not supplier_id or not supplier_name or not contact_email:
+        print("Error: Supplier information cannot be empty.")
+        return
+
+    supplier = Supplier(
+        supplier_id,
+        supplier_name,
+        contact_email
+    )
+
+    print("\nProduct Type:")
+    print("1. Physical Product")
+    print("2. Digital Product")
 
     product_type = input("Select product type: ")
 
-    if product_type == "1": 
+    if product_type == "1":
         try:
-            weight = float(input("Weight (kg): ")) 
+            weight = float(input("Weight (kg): "))
 
-            if weight < 0: 
-                print("Error: Weight cannot be negative.") 
-                return 
+            if weight < 0:
+                print("Error: Weight cannot be negative.")
+                return
 
         except ValueError:
             print("Error: Enter a valid weight.")
-            return 
+            return
 
-        product = PhysicalProduct(product_id, name, price, stock, weight)  
+        # Pass the Supplier object to PhysicalProduct.
+        product = PhysicalProduct(product_id, name, price, stock, weight, supplier)
 
-    elif product_type == "2":  
+    elif product_type == "2":
         try:
-            download_size = float(input("Download Size (MB): "))  
+            download_size = float(input("Download Size (MB): "))
 
-            if download_size < 0:  
-                print("Error: Download size cannot be negative.") 
+            if download_size < 0:
+                print("Error: Download size cannot be negative.")
                 return
 
         except ValueError:
             print("Error: Enter a valid download size.")
             return
 
-        product = DigitalProduct(product_id, name, price, stock, download_size)
+        # Pass the Supplier object to DigitalProduct.
+        product = DigitalProduct(product_id, name, price, stock, download_size, supplier)
 
     else:
         print("Error: Please select 1 or 2.")
@@ -175,11 +247,14 @@ def add_product(inventory):
 
 
 # Update product stock
-def update_stock(inventory):
+def update_stock(inventory: Inventory) -> None:
+
     print("\nUpdate Stock")
 
     product_id = input("Enter Product ID: ").strip()
-    product = inventory.search_product(product_id)
+
+    # Use find_product() from the Lab 8 Inventory class.
+    product = inventory.find_product(product_id)
 
     if product is None:
         print("Product not found.")
@@ -204,11 +279,14 @@ def update_stock(inventory):
 
 
 # Search for a product
-def search_product(inventory):
+def search_product(inventory: Inventory) -> None:
+
     print("\nSearch Product")
 
     product_id = input("Enter Product ID: ").strip()
-    product = inventory.search_product(product_id)
+
+    # Use find_product() from the Lab 8 Inventory class.
+    product = inventory.find_product(product_id)
 
     if product is None:
         print("Product not found.")
@@ -219,7 +297,8 @@ def search_product(inventory):
 
 
 # Menu
-def get_valid_input():
+def get_valid_input() -> int | None:
+
     print("\n----------- MENU -----------")
     print("1. Display All Products")
     print("2. Add Product")
@@ -249,18 +328,30 @@ inventory = load_inventory()
 
 # If there is no saved inventory, create at least 3 products
 if not inventory.get_products():
-    product = PhysicalProduct("P001", "Laptop", 1200.00, 15, 2.5)
+
+    # Create a Supplier object before creating the Products.
+    supplier = Supplier(
+        "S001",
+        "ABC Technology",
+        "abc@abctechnology.com"
+    )
+
+    product = PhysicalProduct("P001", "Laptop", 1200.00, 15, 2.5, supplier)
+
     inventory.add_product(product)
 
-    product = PhysicalProduct("P002", "Mouse", 25.50, 40, 0.2)
+    product = PhysicalProduct("P002", "Mouse", 25.50, 40, 0.2, supplier)
+
     inventory.add_product(product)
 
-    product = DigitalProduct("P003", "E-book", 45.00, 25, 5.0)
+    product = DigitalProduct("P003", "E-book", 45.00, 25, 5.0, supplier)
+
     inventory.add_product(product)
 
 
 # Main loop for the menu-driven program
 while True:
+
     print("\n" + "=" * 40)
     print("INVENTORY MANAGEMENT SYSTEM")
     print("=" * 40)

@@ -61,7 +61,7 @@ print(
 
 print(
     "Both Products share the same Supplier object:",
-    physical_product._supplier is digital_product._supplier
+    physical_product.supplier is digital_product.supplier
 )
 
 
@@ -116,7 +116,7 @@ inventory_a.add_product(product)
 
 # 5. Remove the Product from Inventory A
 print("\n--- REMOVING PRODUCT FROM INVENTORY A ---")
-inventory_a.remove_product(product._product_id)
+inventory_a.remove_product(product.product_id)
 
 # 6. Check whether the Product can still be used
 print("\n--- PRODUCT AFTER REMOVAL FROM INVENTORY A ---")
@@ -175,7 +175,7 @@ order1.add_order_line(product2, 1)
 print("\n--- ORDER 1 ---")
 
 for line in order1.order_lines:
-    print("Product:", line.product._name)
+    print("Product:", line.product.name)
     print("Quantity:", line.quantity)
     print("Subtotal: $", line.calculate_subtotal())
 

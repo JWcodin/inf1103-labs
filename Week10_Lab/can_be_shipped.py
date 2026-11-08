@@ -6,5 +6,5 @@ from abc import ABC, abstractmethod
 # Any class that inherits from CanBeShipped must provide: calculate_shipping_cost()
 class CanBeShipped(ABC):
     @abstractmethod
-    def calculate_shipping_cost(self):
+    def calculate_shipping_cost(self) -> float:
         pass
