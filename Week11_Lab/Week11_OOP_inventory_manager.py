@@ -7,6 +7,7 @@ from physical_product import PhysicalProduct
 from digital_product import DigitalProduct
 from inventory import Inventory
 from supplier import Supplier
+from product_factory import ProductFactory
 
 
 # Data Persistence: Check whether inventory.json exists. Create load_inventory() to load inventory.json if it exists. Otherwise, begin with an empty inventory.
@@ -48,25 +49,30 @@ def load_inventory() -> Inventory:
             supplier = suppliers[details["supplier_id"]]
 
             if product_type == "DigitalProduct":
-
-                product = DigitalProduct(
+                product = ProductFactory.create(
+                    "digital",
                     product_id,
                     details["name"],
                     details["price"],
                     details["stock"],
-                    details.get("download_size", 0),
-                    supplier
+                    supplier,
+                    download_size=details.get("download_size", 0)
+                )
+
+            elif product_type == "PhysicalProduct":
+                product = ProductFactory.create(
+                    "physical",
+                    product_id,
+                    details["name"],
+                    details["price"],
+                    details["stock"],
+                    supplier,
+                    weight=details.get("weight", 0)
                 )
 
             else:
-
-                product = PhysicalProduct(
-                    product_id,
-                    details["name"],
-                    details["price"],
-                    details["stock"],
-                    details.get("weight", 0),
-                    supplier
+                raise ValueError(
+                    f"Unknown product type: {product_type}"
                 )
 
             inventory.add_product(product)
@@ -209,6 +215,7 @@ def add_product(inventory: Inventory) -> None:
     product_type = input("Select product type: ")
 
     if product_type == "1":
+
         try:
             weight = float(input("Weight (kg): "))
 
@@ -220,10 +227,11 @@ def add_product(inventory: Inventory) -> None:
             print("Error: Enter a valid weight.")
             return
 
-        # Pass the Supplier object to PhysicalProduct.
-        product = PhysicalProduct(product_id, name, price, stock, weight, supplier)
+        product = ProductFactory.create("physical", product_id, name, price, stock, 
+                                        supplier, weight=weight)
 
     elif product_type == "2":
+
         try:
             download_size = float(input("Download Size (MB): "))
 
@@ -235,8 +243,8 @@ def add_product(inventory: Inventory) -> None:
             print("Error: Enter a valid download size.")
             return
 
-        # Pass the Supplier object to DigitalProduct.
-        product = DigitalProduct(product_id, name, price, stock, download_size, supplier)
+        product = ProductFactory.create("digital", product_id, name, price, stock,
+                                        supplier,download_size=download_size)
 
     else:
         print("Error: Please select 1 or 2.")
@@ -336,15 +344,18 @@ if not inventory.get_products():
         "abc@abctechnology.com"
     )
 
-    product = PhysicalProduct("P001", "Laptop", 1200.00, 15, 2.5, supplier)
+    product = ProductFactory.create("physical", "P001", "Laptop", 1200.00, 15, 
+                                    supplier, weight=2.5)
 
     inventory.add_product(product)
 
-    product = PhysicalProduct("P002", "Mouse", 25.50, 40, 0.2, supplier)
+    product = ProductFactory.create("physical", "P002", "Mouse", 25.50, 40, 
+                                    supplier, weight=0.2)
 
     inventory.add_product(product)
 
-    product = DigitalProduct("P003", "E-book", 45.00, 25, 5.0, supplier)
+    product = ProductFactory.create("digital", "P003", "E-book", 45.00, 25,
+                                    supplier, download_size=5.0)
 
     inventory.add_product(product)
 

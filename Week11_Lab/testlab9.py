@@ -4,6 +4,7 @@ from bulk_discount import BulkDiscount
 from percentage_discount import PercentageDiscount
 from physical_product import PhysicalProduct
 from supplier import Supplier
+from product_factory import ProductFactory
 
 print("\n========== TEST 1: Bulk and Percentage Discounts ==========")
 
@@ -56,3 +57,21 @@ print("Order 2 total:", order2.calculate_total())
 # Check whether both orders share the same discount object
 print("Both orders share the same discount:",
       order1.discount is order2.discount)
+
+
+print("\n========== TEST 3: ProductFactory Error Handling ==========")
+
+supplier = Supplier("S001", "ABC Technology", "abc@example.com")
+
+try:
+    product = ProductFactory.create(
+        "service",
+        "S001",
+        "Installation Service",
+        30.00,
+        5,
+        supplier
+    )
+
+except ValueError as error:
+    print("Error:", error)

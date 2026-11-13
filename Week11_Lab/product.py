@@ -5,6 +5,11 @@ from supplier import Supplier
 class Product(ABC): # Product inherits from ABC
 
     def __init__(self, product_id: str, name: str, price: float, stock: int, supplier: Supplier) -> None:
+        if price <= 0:
+            raise ValueError("Price must be greater than zero.")
+        
+        if stock < 0:
+            raise ValueError("Stock cannot be negative.")
 
         self._product_id = product_id
         self._name = name
@@ -37,9 +42,9 @@ class Product(ABC): # Product inherits from ABC
         return self._supplier
 
     def update_stock(self, quantity: int) -> None:
+        # Because the class should reject invalid stock regardless of who calls it.
         if quantity < 0:
-            print("Error: Stock cannot be negative.")
-            return
+            raise ValueError("Stock cannot be negative.")
 
         self._stock = quantity
 
