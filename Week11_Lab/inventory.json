@@ -1,0 +1,63 @@
+{
+    "suppliers": {
+        "S001": {
+            "name": "ABC Technology",
+            "contact_email": "abc@abctechnology.com"
+        },
+        "S002": {
+            "name": "EFG Technology",
+            "contact_email": "efg@efgtechnology.com"
+        },
+        "S003": {
+            "name": "PixelForge Digital Assets",
+            "contact_email": "support@pixelforgedigital.com"
+        }
+    },
+    "products": [
+        {
+            "product_id": "P001",
+            "name": "Laptop",
+            "price": 1200.0,
+            "stock": 15,
+            "supplier_id": "S001",
+            "type": "PhysicalProduct",
+            "weight": 2.5
+        },
+        {
+            "product_id": "P002",
+            "name": "Mouse",
+            "price": 25.5,
+            "stock": 50,
+            "supplier_id": "S001",
+            "type": "PhysicalProduct",
+            "weight": 0.2
+        },
+        {
+            "product_id": "P003",
+            "name": "E-book",
+            "price": 45.0,
+            "stock": 25,
+            "supplier_id": "S001",
+            "type": "DigitalProduct",
+            "download_size": 5.0
+        },
+        {
+            "product_id": "P004",
+            "name": "Monitor",
+            "price": 299.99,
+            "stock": 10,
+            "supplier_id": "S002",
+            "type": "PhysicalProduct",
+            "weight": 4.35
+        },
+        {
+            "product_id": "P005",
+            "name": "Digital art",
+            "price": 50.0,
+            "stock": 10,
+            "supplier_id": "S003",
+            "type": "DigitalProduct",
+            "download_size": 10.0
+        }
+    ]
+}

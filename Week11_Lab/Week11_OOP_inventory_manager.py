@@ -1,5 +1,5 @@
-
 import json
+import csv
 import os
 
 from product import Product
@@ -11,7 +11,6 @@ from product_factory import ProductFactory
 
 
 # Data Persistence: Check whether inventory.json exists. Create load_inventory() to load inventory.json if it exists. Otherwise, begin with an empty inventory.
-
 def load_inventory() -> Inventory:
 
     # Create an empty Inventory object
@@ -91,8 +90,44 @@ def load_inventory() -> Inventory:
         return Inventory()
 
 
-# Create save_inventory() and save data to inventory.json.
+# Load additional products from a CSV file.
+def load_products(path: str, inventory: Inventory, supplier: Supplier) -> None:
+    loaded = 0
+    try:
+        file = open(path, newline="")
+    except FileNotFoundError:
+        print(f"Products file not found: {path}")
+    else:
+        with file:
+            reader = csv.reader(file)
+            # Skip the header row
+            next(reader, None)
 
+            for row in reader:
+                try:
+                    product_type = row[0]
+                    product_id = row[1]
+                    name = row[2]
+                    price = float(row[3])
+                    stock = int(row[4])
+
+                    product = ProductFactory.create(product_type, product_id, name,
+                                                    price, stock, supplier)
+                    inventory.add_product(product)
+                    loaded += 1
+
+                except ValueError as error:
+                    print(
+                        f"Skipping invalid row {row}: {error}"
+                    )
+
+        print(f"{loaded} products loaded.")
+
+    finally:
+        print("Load attempt finished.")
+
+
+# Create save_inventory() and save data to inventory.json.
 def save_inventory(inventory: Inventory) -> None:
     saved_data = []
     #Store Supplier objects separately to avoid duplication.
@@ -151,6 +186,19 @@ def save_inventory(inventory: Inventory) -> None:
 
         print(f"Error saving inventory: {error}")
 
+# Write a helper function that asks the user for a positive price and keeps asking until it gets a valid value. 
+# Converting text with float() can raise a ValueError, and so can your own validation, so handle both. 
+def get_positive_float(prompt: str) -> float:
+    while True:
+        try:
+            value = float(input(prompt))
+            if value <= 0:
+                print("Please enter a number greater than zero.")
+                continue
+            return value
+
+        except ValueError:
+            print("Please enter a valid number, e.g. 12.50")
 
 # Add a new product to the inventory.
 def add_product(inventory: Inventory) -> None:
@@ -282,7 +330,12 @@ def update_stock(inventory: Inventory) -> None:
         print("Error: Stock quantity must be an integer.")
         return
 
-    product.update_stock(new_quantity)
+    try:
+        product.update_stock(new_quantity)
+    except ValueError as error:
+        print(f"Error: {error}")
+        return
+    
     print("Stock updated successfully!")
 
 
@@ -361,34 +414,38 @@ if not inventory.get_products():
 
 
 # Main loop for the menu-driven program
-while True:
+def main():
+    while True:
 
-    print("\n" + "=" * 40)
-    print("INVENTORY MANAGEMENT SYSTEM")
-    print("=" * 40)
+        print("\n" + "=" * 40)
+        print("INVENTORY MANAGEMENT SYSTEM")
+        print("=" * 40)
 
-    option = get_valid_input()
+        option = get_valid_input()
 
-    if option == 1:
-        inventory.display_all()
+        if option == 1:
+            inventory.display_all()
 
-    elif option == 2:
-        add_product(inventory)
+        elif option == 2:
+            add_product(inventory)
 
-    elif option == 3:
-        update_stock(inventory)
+        elif option == 3:
+            update_stock(inventory)
 
-    elif option == 4:
-        search_product(inventory)
+        elif option == 4:
+            search_product(inventory)
 
-    elif option == 5:
-        print("\nSaving inventory...")
-        save_inventory(inventory)
+        elif option == 5:
+            print("\nSaving inventory...")
+            save_inventory(inventory)
 
-    elif option == 6:
-        print("\nSaving inventory before exit...")
-        save_inventory(inventory)
+        elif option == 6:
+            print("\nSaving inventory before exit...")
+            save_inventory(inventory)
 
-        print("\nThank you for using Inventory Management System.")
-        print("Program terminated.")
-        break
+            print("\nThank you for using Inventory Management System.")
+            print("Program terminated.")
+            break
+
+if __name__ == "__main__":
+    main()
